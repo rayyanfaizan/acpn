@@ -1,0 +1,49 @@
+Simulator instproc advertise_ {trust_A mess {r 100} {c 0}} {
+  global node_ BL WL
+  set id 0
+
+ $self puts-nam-config [format "+ -t %.15g -s $trust_A -d -1 -p $mess -e 48 -c $id -a $c -i 0 -k RTR \n- -t %.15g -s $trust_A -d -1 -p $mess -e 48 -c $id -a $c -i 0 -k RTR\nh -t %.15g -s $trust_A -d -1 -p $mess -e 48 -c $id -a $c -i 0 -k RTR -R $r" [$self now] [$self now] [$self now]]
+    #set x [expr [$self now]+[expr 0.01+(rand()*0.05)]]
+      $self puts-ns-traceall " s [$self now] $trust_A RTR $mess" 
+}
+
+Simulator instproc commun_trace {trust_A n_node {pkt cbr} {ps 700} {c 0}} {
+  #global id
+  set id 0
+  set d 10
+ $self puts-nam-config [format "+ -t %.15g -s $trust_A -d $n_node -p $pkt -e  $ps -c $id -a $c -i 0 -k MAC \n- -t %.15g -s $trust_A -d $n_node -p $pkt -e  $ps -c $id -a $c -i 0 -k MAC\nh -t %.15g -s $trust_A -d $n_node -p $pkt -e  $ps -c $id -a $c -i 0 -k MAC -D $d" [$self now] [$self now] [$self now]]
+    #set x [expr [$self now]+[expr 0.01+(rand()*0.05)] ]
+  $self puts-ns-traceall " s [$self now] $trust_A AGT $pkt $ps $id 0 0 MAC"   
+ 
+
+}
+
+Simulator instproc drop_ {trust_A n_node {pkt cbr} {ps 700} {c 0}} {
+  #global id
+  set id 0
+  set d 10
+ $self puts-nam-config [format "+ -t %.15g -s $trust_A -d $n_node -p $pkt -e  $ps -c $id -a $c -i 0 -k MAC \n- -t %.15g -s $trust_A -d $n_node -p $pkt -e  $ps -c $id -a $c -i 0 -k MAC\nd -t %.15g -s $trust_A -d $n_node -p $pkt -e  $ps -c $id -a $c -i 0 -k MAC" [$self now] [$self now] [$self now]]
+    #set x [expr [$self now]+[expr 0.01+(rand()*0.05)] ]
+  $self puts-ns-traceall "d [$self now] $trust_A AGT $pkt $ps $id 0 0 MAC"   
+ 
+
+}
+
+
+Simulator instproc tr-annim { str } {
+	$self instvar annotationSeq_
+	$self puts-ns-traceall [format \
+		"v %s %s {set sim_annotation {%s}}" [$self now] eval $str]
+	incr annotationSeq_
+	$self puts-nam-config [format \
+		"v -t %.15g -e sim_annotation %.15g $annotationSeq_ $str" \
+		[$self now] [$self now] ]
+}
+
+proc tr_range {n1 n2} {
+ global ns_ node_
+        $node_($n1) update-pos
+        $node_($n2) update-pos
+      return [expr sqrt(pow([$node_($n1) set X_]-[$node_($n2) set X_],2)+pow([$node_($n1) set Y_]-[$node_($n2) set Y_],2))]
+
+}
